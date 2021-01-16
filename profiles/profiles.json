@@ -1,0 +1,65 @@
+[
+    {
+        "searchName":"psp auction",
+        "searchDesc":"psp consoles auction sorted by ending soonest.",
+        "searchURL":"https://www.ebay.com/sch/i.html?_from=R40&_nkw=psp&_sacat=0&_sop=1&rt=nc&LH_Auction=1",
+        "maxPrice":35,
+        "minPrice":0,
+        "posWords":[["console","moderate"],["works","moderate"],["system","moderate"]],
+        "negWords":[["liquid","strong"],["spill","strong"],["japan","strong"]],
+        "notifTime":240,
+        "searchType":"auction",
+        "dataName":"pspauction.csv"
+    },
+    {
+        "searchName":"psp",
+        "searchDesc":"psp consoles buy it now sorted by newly listed",
+        "searchURL":"https://www.ebay.com/sch/i.html?_from=R40&_nkw=psp&_sacat=0&LH_BIN=1&_sop=10",
+        "maxPrice":35,
+        "minPrice":5,
+        "searchType":"fixed",
+        "dataName":"pspfixed.csv"
+    },
+    {
+        "searchName":"ds lite consoles auction",
+        "searchDesc":"ds lite consoles auction sorted by ending soonest.",
+        "searchURL":"https://www.ebay.com/sch/i.html?_from=R40&_nkw=ds+lite&_sacat=0&LH_TitleDesc=0&_fsrp=1&_sop=1&rt=nc&LH_Auction=1",
+        "maxPrice":25,
+        "minPrice":0,
+        "posWords":[["console","moderate"],["works","moderate"],["system","moderate"]],
+        "negWords":[["liquid","strong"],["spill","strong"],["japan","strong"]],
+        "notifTime":240,
+        "searchType":"auction",
+        "dataName":"dslite.csv"
+    },
+    {
+        "searchName":"ds lite consoles fixed",
+        "searchDesc":"ds lite consoles fixed price ordered by newest listed",
+        "searchURL":"https://www.ebay.com/sch/i.html?_from=R40&_nkw=ds+lite&_sacat=0&_sop=10&rt=nc&LH_BIN=1",
+        "maxPrice":25,
+        "minPrice":10,
+        "searchType":"fixed",
+        "dataName":"dsliteFixed.csv"
+    },
+    {
+        "searchName":"dsi consoles fixed",
+        "searchDesc":"dsi consoles fixed price ordered by newest listed",
+        "searchURL":"https://www.ebay.com/sch/i.html?_from=R40&_nkw=dsi&_sacat=0&_sop=10&rt=nc&LH_BIN=1",
+        "maxPrice":20,
+        "minPrice":10,
+        "searchType":"fixed",
+        "dataName":"dsiFixed.csv"
+    },
+    {
+        "searchName":"dsi consoles auction",
+        "searchDesc":"dsi consoles auction sorted by ending soonest.",
+        "searchURL":"https://www.ebay.com/sch/i.html?_from=R40&_nkw=dsi&_sacat=0&LH_Auction=1&_sop=1",
+        "maxPrice":20,
+        "minPrice":0,
+        "posWords":[["console","moderate"],["works","moderate"],["system","moderate"]],
+        "negWords":[["liquid","strong"],["spill","strong"],["japan","strong"]],
+        "notifTime":240,
+        "searchType":"auction",
+        "dataName":"dsiAuction.csv"
+    }
+]
