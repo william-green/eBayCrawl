@@ -8,6 +8,7 @@
         "posWords":[["console","moderate"],["works","moderate"],["system","moderate"]],
         "negWords":[["liquid","strong"],["spill","strong"],["japan","strong"]],
         "notifTime":240,
+        "specifics":["handheld system"],
         "searchType":"auction",
         "dataName":"pspauction.csv"
     },
@@ -17,6 +18,7 @@
         "searchURL":"https://www.ebay.com/sch/i.html?_from=R40&_nkw=psp&_sacat=0&LH_BIN=1&_sop=10",
         "maxPrice":35,
         "minPrice":5,
+        "specifics":["handheld system"],
         "searchType":"fixed",
         "dataName":"pspfixed.csv"
     },
@@ -29,6 +31,7 @@
         "posWords":[["console","moderate"],["works","moderate"],["system","moderate"]],
         "negWords":[["liquid","strong"],["spill","strong"],["japan","strong"]],
         "notifTime":240,
+        "specifics":["handheld system"],
         "searchType":"auction",
         "dataName":"dslite.csv"
     },
@@ -38,6 +41,7 @@
         "searchURL":"https://www.ebay.com/sch/i.html?_from=R40&_nkw=ds+lite&_sacat=0&_sop=10&rt=nc&LH_BIN=1",
         "maxPrice":25,
         "minPrice":10,
+        "specifics":["handheld system"],
         "searchType":"fixed",
         "dataName":"dsliteFixed.csv"
     },
@@ -47,6 +51,7 @@
         "searchURL":"https://www.ebay.com/sch/i.html?_from=R40&_nkw=dsi&_sacat=0&_sop=10&rt=nc&LH_BIN=1",
         "maxPrice":20,
         "minPrice":10,
+        "specifics":["handheld system"],
         "searchType":"fixed",
         "dataName":"dsiFixed.csv"
     },
@@ -59,6 +64,7 @@
         "posWords":[["console","moderate"],["works","moderate"],["system","moderate"]],
         "negWords":[["liquid","strong"],["spill","strong"],["japan","strong"]],
         "notifTime":240,
+        "specifics":["handheld system"],
         "searchType":"auction",
         "dataName":"dsiAuction.csv"
     }

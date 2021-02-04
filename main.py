@@ -9,19 +9,12 @@ from requests_html import HTMLSession
 session = HTMLSession()
 import sys
 
-'''
-def parseConf():
-    if os.path.isfile("../conf.json"):
-        with open("../conf.json") as confFile:
-            print(confFile.read())
-    else:
-        with open("../settings.json",'w') as confFile:
-            print('conf file not configured; creating file')
-'''
 profiles = open("./profiles/profiles.json","r")
 searchItems = json.load(profiles)
 
-frameInterval = 1
+lockedFiles = []
+
+frameInterval = 60
 maxThreadCount = 8
 
 class load:
@@ -30,38 +23,36 @@ class load:
         self._running = True
 
     def terminate(self):
-        print('terminating')
+        print('terminating network thread')
         self._running = False
 
-    def load(self, url):
+    def load(self, searchItem):
         global session
-        req = session.get(url)
-        results = req.html.find(".srp-results .s-item__wrapper.clearfix")
+        req = session.get(searchItem['searchURL'])
+        if(searchItem['searchType'] == 'auction'):
+            print('auction page')
+            searchAuction.parseResults(req, searchItem)
+        if(searchItem['searchType'] == 'fixed'):
+            print('fixed page')
         print('loading page')
         self.terminate()
-        #sys.exit()
     
 def loadSearches():
     for itm in searchItems:
+        #sort the search queue such that the oldest update is prioritized
+        sorted(searchItems, key = lambda item: item['lastUpdt'])
         if threading.active_count() < maxThreadCount:
-            print(type(searchItems[0]))
             loadItm = load()
-            t = threading.Thread(target=loadItm.load, args=(searchItems[0]['searchURL'],))
+            t = threading.Thread(target=loadItm.load, args=(itm,))
             t.start()
-    '''
-    for itm in searchItems:
-        print("search item")
-        #processThread = threading.Thread(target=processLine, args=(dRecieved,))  # <- note extra ','
-        loadItm = load()
-        t = threading.Thread(target=loadItm.load, args=(itm['searchURL'],))
-        t.start()
-    '''
+            itm['lastUpdt'] = time.time()
 
 if __name__ == "__main__":
     profiles = open("./profiles/profiles.json","r")
     searchItems = json.load(profiles)
     for itm in searchItems:
-        itm['lastUpdt'] = time.time()#sets baseline timestamp for queue prioritization
+        #sets baseline timestamp for queue prioritization
+        itm['lastUpdt'] = time.time()
     
     iterQueue = []
     frmState = {"lastTime":time.time()}
@@ -74,7 +65,7 @@ if __name__ == "__main__":
             loadSearches()
             frmState['lastTime'] = time.time()
         
-        print(threading.active_count())
+        print(str(threading.active_count()) + " active threads")
 
         #queue stack
         for i,itm in enumerate(iterQueue):
@@ -82,22 +73,3 @@ if __name__ == "__main__":
             itm()
             #delete queue item
             del iterQueue[i]
-
-    for searchItem in searchItems:
-        print(searchItem)
-        #create threads for all network requests
-        #
-        '''
-        try:
-            if searchItem['searchType'] == 'auction':
-                print('starting threads')
-                searchThread = threading.Thread(target=searchAuction.search,kwargs={'searchPrefs':searchItem})
-                searchThread.start()
-                queueManagerThread = threading.Thread(target=queueManager.queueManager,kwargs={'searchPrefs':searchItem})
-                queueManagerThread.start()
-            if searchItem['searchType'] == 'fixed':
-                searchThread = threading.Thread(target=searchFixed.search,kwargs={'searchPrefs':searchItem})
-                searchThread.start()
-        except:
-            pass
-        '''
