@@ -55,9 +55,8 @@ if __name__ == "__main__":
         #sets baseline timestamp for queue prioritization
         itm['lastUpdt'] = time.time()
         fileName = 'data/'+itm['dataName']
-        found = False
         fileExists = os.path.isfile(fileName)
-        if not found:
+        if not fileExists:
             with open(fileName,'a') as file:
                 fields = ['url','endTime','notif']
                 writer = csv.DictWriter(file,fieldnames=fields)
