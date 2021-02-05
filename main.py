@@ -62,33 +62,9 @@ if __name__ == "__main__":
                 fields = ['url','endTime','notif']
                 writer = csv.DictWriter(file,fieldnames=fields)
                 writer.writeheader()
-
-        '''
-        fileName = 'data/'+self.searchPrefs['dataName']
-		found = False
-		fileExists = os.path.isfile(fileName)
-		if fileExists:
-			#print('file exists')
-			with open(fileName,'r') as file:
-				reader = csv.DictReader(file)
-				for row in reader:
-					if data['url'] == row['url']:
-						#print('duplicate detected')
-						found = True
-        if not found:
-			#the new data is not a duplicate or the file does not exist
-			with open(fileName,'a') as file:
-				#if not os.path.isfile(fileName)
-				fields = ['url','endTime','notif']
-				writer = csv.DictWriter(file,fieldnames=fields)
-				if not fileExists:
-					writer.writeheader()
-				data['notif'] = False
-				writer.writerow(data)
-        '''
     
     iterQueue = []
-    frmState = {"lastTime":time.time()}
+    frmState = {"lastTime":time.time() - frameInterval}
     while True:
         #minimum interval time delay
         time.sleep(1)
