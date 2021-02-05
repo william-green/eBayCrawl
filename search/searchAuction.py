@@ -47,12 +47,10 @@ def parseResult(result, searchItem):
 			for term in searchItem['specifics']:
 				if(itemSpecifics.text.lower().find(term.lower()) == -1):
 					spcMtch = False
-		if(spcMtch):
-			#all applicable item specific constraints have been met
-			#all price constraints have been met
-			#append to monitoring queue
-			
-
+		#if(spcMtch):
+		#all applicable item specific constraints have been met
+		#all price constraints have been met
+		#append to monitoring queue
 
 	#pull remaining time text string
 	if(len(result.find('.s-item__time-left')) > 0):
