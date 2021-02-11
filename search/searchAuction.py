@@ -8,6 +8,9 @@ import time
 import os.path
 import csv
 import webbrowser
+import globalData
+from shutil import copyfile
+from notifs import notif
 
 def calculateTime(timeString, searchItem):
 	timeCodes = {'s':1,'m':60,'h':60*60,'d':60*60*24}
@@ -34,8 +37,8 @@ def parseResult(result, searchItem):
 	try:
 		price = float(re.findall("\d+\.\d+",result.find('.s-item__price')[0].text.replace(',',''))[0])+shipping
 	except:
-		print('Could not find price.')
-		#send notif of error and listing link
+		print(sys.exc_info()[0])
+		notif.send(sys.exc_info()[0] + ' \r\n ' + listingURL)
 	#check price constraints
 	if price < searchItem['maxPrice'] and price > searchItem['minPrice']:
 		#check item specifics
@@ -43,33 +46,74 @@ def parseResult(result, searchItem):
 		if(len(searchItem['specifics']) > 0):
 			global session
 			req = session.get(listingURL)
-			itemSpecifics = req.html.find('#viTabs_0_is')[0]
-			for term in searchItem['specifics']:
-				if(itemSpecifics.text.lower().find(term.lower()) == -1):
-					spcMtch = False
-		#if(spcMtch):
-		#all applicable item specific constraints have been met
-		#all price constraints have been met
-		#append to monitoring queue
+			try:
+				itemSpecifics = req.html.find('#viTabs_0_is')[0]
+				for term in searchItem['specifics']:
+					if(itemSpecifics.text.lower().find(term.lower()) == -1):
+						spcMtch = False
+			except:
+				print(sys.exc_info()[0])
+				notif.send(sys.exc_info()[0] + ' \r\n ' + listingURL)
+		if(spcMtch):
+			#all applicable item specific constraints have been met
+			#all price constraints have been met
+			#append to monitoring queue
+			data = {"url":listingURL,"endTime":time.time()+timing} #data dict package
+			fileName = 'data/'+searchItem['dataName']
+			found = False #flag for whether entry already recorded
+			fileExists = os.path.isfile(fileName)
+			if fileExists: #queue cache file exists
+				with open(fileName,'r') as file:
+					reader = csv.DictReader(file)
+					for row in reader:
+						if data['url'] == row['url']:
+							#listing is already in cache queue
+							found = True
+				if not found: #listing is not in cache queue; append to queue
+					globalData.lockedFiles.append(fileName)
+					with open(fileName,'a') as file:
+						fields = ['url','endTime','notif']
+						writer = csv.DictWriter(file,fieldnames = fields)
+						data['notif'] = False
+						writer.writerow(data)
+					globalData.lockedFiles.remove(fileName)
 
-	#pull remaining time text string
-	if(len(result.find('.s-item__time-left')) > 0):
-		timing = calculateTime(result.find('.s-item__time-left')[0].text.split(' '), searchItem)
-		#pull listing link
-		listingURL = result.find('.s-item__link')[0].attrs['href'].split('?')[0]
-		#calculate total item cost...
-		#find the shipping cost if applicable...
-		try:
-			shipping = float(re.findall("\d+\.\d+",result.find('.s-item__shipping')[0].text.replace(',',''))[0])
-		except:
-			#free shipping
-			shipping = 0
-		#find item price and add shipping...
-		try:
-			price = float(re.findall("\d+\.\d+",result.find('.s-item__price')[0].text.replace(',',''))[0])+shipping
-		except:
-			print('could not find price for '+listingURL)
-	
+def checkListing(url, searchItem):
+	global session
+	req = session.get(url)
+	#seller condition description
+	try:
+		sellerConditionDesc = req.html.find('#itmSellerDesc') or req.html.find('.viSNotesCnt')[0]
+	except Exception as e:
+		sellerConditionDesc = ''
+		print("error getting seller desc: "+str(e))
+	#listing description
+	try:
+		sellerDescUrl = req.html.find('#desc_ifr')[0].attrs['src']
+		sellerDesc = session.get(sellerDescUrl)
+		sellerDescText = sellerDesc.html.text
+	except Exception as e:
+		print('error getting listing description: '+str(e))
+	#listing price
+	try:
+		itemPrice = float(re.findall("\d+\.\d+",req.html.find("#prcIsum_bidPrice, #prcIsum, #mm-saleDscPrc, #convbidPrice")[0].text)[0])
+	except Exception as e:
+		itemPrice = 0
+		print('exception getting item price: '+str(e))
+	#listing shipping price
+	try:
+		shippingPrice = float(re.findall("\d+\.\d+",req.html.find("#fshippingCost")[0].text)[0])
+	except Exception as e:
+		print('shipping: '+str(e))
+		shippingPrice = 0
+	#review constraints
+	try:
+		if (itemPrice + shippingPrice) < searchItem['maxPrice'] and (itemPrice + shippingPrice) > searchItem['minPrice'] and itemPrice != 0:
+			print('auction ending; sending notif...')
+			#send notification
+			notif.send(url)
+	except:
+		print('exception with price analysis: '+str(e))
 
 def parseResults(req,searchItem):
 	#pull all individual listings from search results...
@@ -77,114 +121,33 @@ def parseResults(req,searchItem):
 	for result in results:
 		#parse a single search result...
 		parseResult(result, searchItem)
-		'''
-		#get time remaining in seconds
-		timing = self.calculateTime(result.find('.s-item__time-left')[0].text.split(" "))
-		#get listing url
-		listingURL = result.find('.s-item__link')[0].attrs['href'].split('?')[0]
-		#calculate total item cost
-		try:
-			shipping = float(re.findall("\d+\.\d+",result.find('.s-item__shipping')[0].text.replace(',',''))[0])
-		except:
-			shipping = 0
-		try:
-			price = float(re.findall("\d+\.\d+",result.find('.s-item__price')[0].text.replace(',',''))[0])+shipping
-		except:
-			print('Could not find price.')
-		#check price constraints
-		if price < self.searchPrefs['maxPrice'] and price > self.searchPrefs['minPrice']:
-			#within price constraints
-			timing = 0 if timing < 0 else timing
-			self.appendQueue({"url":listingURL,"endTime":time.time()+timing})
-		'''
 
-class search:
-	def __init__(self,searchPrefs):
-		self.searchPrefs = searchPrefs
-		self.status = {
-			'page':searchPrefs['searchURL']
-		}
-		while True:
-			self.loadResults(searchPrefs['searchURL'])
-			time.sleep(60)
-	def loadResults(self,url):
-		global session
-		'''
-		urlParams = dict(parse.parse_qsl(parse.urlsplit(url).query))
-		if "_pgn" not in urlParams:
-			urlParams['_pgn'] = 1
-			self.status['pageURL'] = page.split('?')[0]+'?'+parse.urlencode(urlParams)
+def checkQueue(searchItems):
+	for itm in searchItems:
+		if 'data/'+itm['dataName'] not in globalData.lockedFiles:
+			globalData.lockedFiles.append('data/'+itm['dataName'])
+			print('not locked')
+			tmpfileName = 'data/.'+itm['dataName']
+			fileName = 'data/'+itm['dataName']
+			found = False
+			fileExists = os.path.isfile(fileName)
+			if fileExists:
+				copyfile(fileName,tmpfileName)
+				with open(tmpfileName,'r') as file:
+					reader = csv.DictReader(file)
+					with open(fileName,'w') as file:
+						fields = ['url','endTime','notif']
+						writer = csv.DictWriter(file,fieldnames=fields)
+						writer.writeheader()
+						for row in reader:
+							if ((float(row['endTime']) - time.time())/60) <= 0 and row['notif'] == 'False':
+							#listing is ending and has not been processed
+								row['notif'] = True
+								writer.writerow(row)
+								checkListing(row['url'], itm)
+							else:
+								writer.writerow(row)
+				os.remove(tmpfileName)
+			globalData.lockedFiles.remove('data/'+itm['dataName'])
 		else:
-			urlParams['_pgn'] = str(int(urlParams['_pgn']) + 1)
-			self.status['pageURL'] = page.split('?')[0]+'?'+parse.urlencode(urlParams)
-		'''
-		req = False
-		while not req:
-			try:
-				req = session.get(url)
-			except:
-				del session
-				session = HTMLSession()
-				time.sleep(1)
-				pass
-		#parse result blocks
-		results = req.html.find(".srp-results .s-item__wrapper.clearfix")
-		for result in results:
-			self.parseResult(result)
-	def calculateTime(self,timeString):
-		timeCodes = {'s':1,'m':60,'h':60*60,'d':60*60*24}
-		timeRem = 0
-		for seg in timeString:
-			for code in timeCodes:
-				if seg.find(code) != -1:
-					#timecode math; pull int from string
-					addTime = int(re.findall("\d+",seg)[0])*timeCodes[code]
-					timeRem += addTime
-		if self.searchPrefs['notifTime'] != 0:
-			#return time remaining
-			return timeRem - self.searchPrefs['notifTime']
-		else:
-			#return time remaining
-			return timeRem
-	def appendQueue(self,data):
-		fileName = 'data/'+self.searchPrefs['dataName']
-		found = False
-		fileExists = os.path.isfile(fileName)
-		if fileExists:
-			#print('file exists')
-			with open(fileName,'r') as file:
-				reader = csv.DictReader(file)
-				for row in reader:
-					if data['url'] == row['url']:
-						#print('duplicate detected')
-						found = True
-		if not found:
-			#the new data is not a duplicate or the file does not exist
-			with open(fileName,'a') as file:
-				#if not os.path.isfile(fileName)
-				fields = ['url','endTime','notif']
-				writer = csv.DictWriter(file,fieldnames=fields)
-				if not fileExists:
-					writer.writeheader()
-				data['notif'] = False
-				writer.writerow(data)
-	def parseResult(self,result):
-		#get time remaining in seconds
-		timing = self.calculateTime(result.find('.s-item__time-left')[0].text.split(" "))
-		#get listing url
-		listingURL = result.find('.s-item__link')[0].attrs['href'].split('?')[0]
-		#calculate total item cost
-		try:
-			shipping = float(re.findall("\d+\.\d+",result.find('.s-item__shipping')[0].text.replace(',',''))[0])
-		except:
-			shipping = 0
-		try:
-			price = float(re.findall("\d+\.\d+",result.find('.s-item__price')[0].text.replace(',',''))[0])+shipping
-		except:
-			print('Could not find price.')
-		#check price constraints
-		if price < self.searchPrefs['maxPrice'] and price > self.searchPrefs['minPrice']:
-			#within price constraints
-			timing = 0 if timing < 0 else timing
-			self.appendQueue({"url":listingURL,"endTime":time.time()+timing})
-
+			print('locked')

@@ -9,6 +9,7 @@ from requests_html import HTMLSession
 session = HTMLSession()
 import sys
 import csv
+import globalData
 
 profiles = open("./profiles/profiles.json","r")
 searchItems = json.load(profiles)
@@ -62,22 +63,27 @@ if __name__ == "__main__":
                 writer = csv.DictWriter(file,fieldnames=fields)
                 writer.writeheader()
     
-    iterQueue = []
+    #iterQueue = []
     frmState = {"lastTime":time.time() - frameInterval}
     while True:
         #minimum interval time delay
         time.sleep(1)
+        #check item queue for expiring items...
+        searchAuction.checkQueue(searchItems)
         if time.time() - frmState['lastTime'] > frameInterval:
             #refresh pages
             print("refresh searches")
             loadSearches()
+            #for queItm in iterQueue:
+            #    queItem()
             frmState['lastTime'] = time.time()
         
         print(str(threading.active_count()) + " active threads")
-
+        '''
         #queue stack
         for i,itm in enumerate(iterQueue):
             #call queue item
             itm()
             #delete queue item
             del iterQueue[i]
+        '''
