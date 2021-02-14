@@ -11,6 +11,7 @@ import webbrowser
 import globalData
 from shutil import copyfile
 from notifs import notif
+import sys
 
 def calculateTime(timeString, searchItem):
 	timeCodes = {'s':1,'m':60,'h':60*60,'d':60*60*24}
@@ -36,9 +37,9 @@ def parseResult(result, searchItem):
 		shipping = 0
 	try:
 		price = float(re.findall("\d+\.\d+",result.find('.s-item__price')[0].text.replace(',',''))[0])+shipping
-	except:
-		print(sys.exc_info()[0])
-		notif.send(sys.exc_info()[0] + ' \r\n ' + listingURL)
+	except Exception as e:
+		print(str(e))
+		notif.send('--------\r\n' + str(e) + ' \r\n .s-item__price \r\n ' + listingURL + '\r\n --------------\r\n')
 	#check price constraints
 	if price < searchItem['maxPrice'] and price > searchItem['minPrice']:
 		#check item specifics
@@ -47,18 +48,25 @@ def parseResult(result, searchItem):
 			global session
 			req = session.get(listingURL)
 			try:
-				itemSpecifics = req.html.find('#viTabs_0_is')[0]
-				for term in searchItem['specifics']:
-					if(itemSpecifics.text.lower().find(term.lower()) == -1):
-						spcMtch = False
-			except:
-				print(sys.exc_info()[0])
-				notif.send(sys.exc_info()[0] + ' \r\n ' + listingURL)
+				itemSpecifics = req.html.find("#viTabs_0_is", first=True)
+				#print(len(itemSpecifics))
+				if itemSpecifics is not None:
+					try:
+						for term in searchItem['specifics']:
+							#notif.send('itemSpecifics type is '+str(type(itemSpecifics)))
+							if(itemSpecifics.text.lower().find(term.lower()) == -1):
+								spcMtch = False
+					except Exception as e:
+						print(str(e))
+						notif.send('--------\r\n' + str(e) + ' \r\n issue scanning for keywords in item specifics \r\n ' + str(req.html) + '\r\n' + listingURL + '\r\n --------------\r\n')
+			except Exception as e:
+				print(str(e))
+				notif.send('--------\r\n' + str(e) + ' \r\n #viTabs_0_is \r\n ' + str(req.html) + '\r\n' + listingURL + '\r\n --------------\r\n')
 		if(spcMtch):
 			#all applicable item specific constraints have been met
 			#all price constraints have been met
 			#append to monitoring queue
-			data = {"url":listingURL,"endTime":time.time()+timing} #data dict package
+			data = {"listingUrl":listingURL,"endTime":time.time()+timing} #data dict package
 			fileName = 'data/'+searchItem['dataName']
 			found = False #flag for whether entry already recorded
 			fileExists = os.path.isfile(fileName)
@@ -66,7 +74,8 @@ def parseResult(result, searchItem):
 				with open(fileName,'r') as file:
 					reader = csv.DictReader(file)
 					for row in reader:
-						if data['url'] == row['url']:
+						#keyerror exception bug
+						if data['listingUrl'] == row['url']:
 							#listing is already in cache queue
 							found = True
 				if not found: #listing is not in cache queue; append to queue
@@ -75,6 +84,9 @@ def parseResult(result, searchItem):
 						fields = ['url','endTime','notif']
 						writer = csv.DictWriter(file,fieldnames = fields)
 						data['notif'] = False
+						#debugging only...
+						data['url'] = data['listingUrl']
+						del data['listingUrl']
 						writer.writerow(data)
 					globalData.lockedFiles.remove(fileName)
 
@@ -112,7 +124,7 @@ def checkListing(url, searchItem):
 			print('auction ending; sending notif...')
 			#send notification
 			notif.send(url)
-	except:
+	except Exception as e:
 		print('exception with price analysis: '+str(e))
 
 def parseResults(req,searchItem):
