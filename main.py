@@ -36,6 +36,7 @@ class load:
             searchAuction.parseResults(req, searchItem)
         if(searchItem['searchType'] == 'fixed'):
             print('fixed page')
+            searchFixed.parseResults(req, searchItem)
         print('loading page')
         self.terminate()
     
