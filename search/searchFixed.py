@@ -8,6 +8,86 @@ import time
 import os.path
 import csv
 from notifs import notif
+import globalData
+
+def parseResult(result, searchItem):
+	#get time remaining in seconds
+	#timing = self.calculateTime(result.find('.s-item__time-left')[0].text.split(" "))
+	#get listing url
+	listingURL = result.find('.s-item__link')[0].attrs['href'].split('?')[0]
+	print(listingURL)
+	#calculate total item cost
+	try:
+		shipping = float(re.findall("\d+\.\d+",result.find('.s-item__shipping')[0].text.replace(',',''))[0])
+	except:
+		shipping = 0
+	try:
+		price = float(re.findall("\d+\.\d+",result.find('.s-item__price')[0].text.replace(',',''))[0])+shipping
+	except Exception as e:
+		print(str(e))
+		notif.send('--------\r\n' + str(e) + ' \r\n .s-item__price \r\n ' + listingURL + '\r\n --------------\r\n')
+
+	if price < searchItem['maxPrice'] and price > searchItem['minPrice']:
+		#check item specifics
+		spcMtch = True
+		if(len(searchItem['specifics']) > 0):
+			global session
+			req = session.get(listingURL)
+			try:
+				itemSpecifics = req.html.find("#viTabs_0_is", first=True)
+				#print(len(itemSpecifics))
+				if itemSpecifics is not None:
+					try:
+						for term in searchItem['specifics']:
+							#notif.send('itemSpecifics type is '+str(type(itemSpecifics)))
+							if(itemSpecifics.text.lower().find(term.lower()) == -1):
+								spcMtch = False
+					except Exception as e:
+						print(str(e))
+						notif.send('--------\r\n' + str(e) + ' \r\n issue scanning for keywords in item specifics \r\n ' + str(req.html) + '\r\n' + listingURL + '\r\n --------------\r\n')
+			except Exception as e:
+				print(str(e))
+				notif.send('--------\r\n' + str(e) + ' \r\n #viTabs_0_is \r\n ' + str(req.html) + '\r\n' + listingURL + '\r\n --------------\r\n')
+		if(spcMtch):
+			#all applicable item specific constraints have been met
+			#all price constraints have been met
+			#append to monitoring queue
+			data = {"listingUrl":listingURL,"timeAdded":time.time()} #data dict package
+			fileName = 'data/'+searchItem['dataName']
+			found = False #flag for whether entry already recorded
+			fileExists = os.path.isfile(fileName)
+			if fileExists: #queue cache file exists
+				with open(fileName,'r') as file:
+					reader = csv.DictReader(file)
+					for row in reader:
+						#keyerror exception bug
+						if data['listingUrl'] == row['url']:
+							#listing is already in cache queue
+							found = True
+				if not found: #listing is not in cache queue; append to queue
+					globalData.lockedFiles.append(fileName)
+					with open(fileName,'a') as file:
+						fields = ['url','timeAdded']
+						writer = csv.DictWriter(file,fieldnames = fields)
+						#data['notif'] = False
+						#debugging only...
+						data['url'] = data['listingUrl']
+						del data['listingUrl']
+						writer.writerow(data)
+					globalData.lockedFiles.remove(fileName)
+					notif.send(listingURL)
+	'''
+	#check price constraints
+	if price < self.searchPrefs['maxPrice'] and price > self.searchPrefs['minPrice'] and listingURL.find('checksum') == -1:
+		#within price constraints
+		#timing = 0 if timing < 0 else timing
+		self.appendRecord({"url":listingURL,"timeAdded":time.time()})
+	'''
+
+def parseResults(req, searchItem):
+	results = req.html.find(".srp-results .s-item__wrapper.clearfix")
+	for result in results:
+		parseResult(result, searchItem)
 
 class search:
 	def __init__(self,searchPrefs):
