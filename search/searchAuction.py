@@ -66,7 +66,7 @@ def parseResult(result, searchItem):
 			#all applicable item specific constraints have been met
 			#all price constraints have been met
 			#append to monitoring queue
-			data = {"listingUrl":listingURL,"endTime":time.time()+timing} #data dict package
+			data = {"listingUrl":listingURL,"endTime":time.time()+timing-searchItem['notifTime']} #data dict package
 			fileName = 'data/'+searchItem['dataName']
 			found = False #flag for whether entry already recorded
 			fileExists = os.path.isfile(fileName)
