@@ -39,7 +39,8 @@ def parseResult(result, searchItem):
 		price = float(re.findall("\d+\.\d+",result.find('.s-item__price')[0].text.replace(',',''))[0])+shipping
 	except Exception as e:
 		print(str(e))
-		notif.send('--------\r\n' + str(e) + ' \r\n .s-item__price \r\n ' + listingURL + '\r\n --------------\r\n')
+		notif.send('--------\r\n' + str(e) + ' \r\n .s-item__price \r\n')
+		notif.send(listingURL)
 	#check price constraints
 	if price < searchItem['maxPrice'] and price > searchItem['minPrice']:
 		#check item specifics
