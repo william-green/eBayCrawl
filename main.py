@@ -16,7 +16,7 @@ searchItems = json.load(profiles)
 
 lockedFiles = []
 
-frameInterval = 60
+frameInterval = 180
 maxThreadCount = 8
 
 class load:
