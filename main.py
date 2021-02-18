@@ -16,7 +16,7 @@ searchItems = json.load(profiles)
 
 lockedFiles = []
 
-frameInterval = 180
+frameInterval = 60
 maxThreadCount = 8
 
 class load:
@@ -30,7 +30,7 @@ class load:
 
     def load(self, searchItem):
         global session
-        req = session.get(searchItem['searchURL'])
+        req = session.get(searchItem['searchURL'], timeout=20)
         if(searchItem['searchType'] == 'auction'):
             print('auction page')
             searchAuction.parseResults(req, searchItem)

@@ -30,6 +30,7 @@ def parseResult(result, searchItem):
 	timing = calculateTime(result.find('.s-item__time-left')[0].text.split(" "), searchItem)
 	#get listing url
 	listingURL = result.find('.s-item__link')[0].attrs['href'].split('?')[0]
+	print(listingURL)
 	#calculate total item cost
 	try:
 		shipping = float(re.findall("\d+\.\d+",result.find('.s-item__shipping')[0].text.replace(',',''))[0])
