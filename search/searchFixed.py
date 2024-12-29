@@ -84,11 +84,11 @@ class search:
 		listingURL = result.find('.s-item__link')[0].attrs['href'].split('?')[0]
 		#calculate total item cost
 		try:
-			shipping = float(re.findall("\d+\.\d+",result.find('.s-item__shipping')[0].text.replace(',',''))[0])
+			shipping = float(re.findall(r"\d+\.\d+",result.find('.s-item__shipping')[0].text.replace(',',''))[0])
 		except:
 			shipping = 0
 		try:
-			price = float(re.findall("\d+\.\d+",result.find('.s-item__price')[0].text.replace(',',''))[0])+shipping
+			price = float(re.findall(r"\d+\.\d+",result.find('.s-item__price')[0].text.replace(',',''))[0])+shipping
 		except:
 			print('Could not find price.')
 		#check price constraints
