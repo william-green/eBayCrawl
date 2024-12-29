@@ -1,8 +1,9 @@
 import smtplib
 
 def send(message):
+	print(message)
 	gmail_user = 'ebay.computer.nerd@gmail.com'
-	gmail_password = 'fuckFish42069::)'
+	gmail_password = 'uouh plhy ukub roiv'
 
 	sent_from = 'test'
 	to = ['7078902047@vtext.com','7075135679@vtext.com']#'7075135679@vtext.com' 7078902047@vzwpix.com

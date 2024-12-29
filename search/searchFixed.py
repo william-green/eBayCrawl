@@ -8,6 +8,7 @@ import time
 import os.path
 import csv
 from notifs import notif
+import random
 
 class search:
 	def __init__(self,searchPrefs):
@@ -32,14 +33,22 @@ class search:
 		req = False
 		while not req:
 			try:
-				req = session.get(url)
+				print(url)
+				sleep_time = random.randint(1, 10)
+				time.sleep(sleep_time)
+				headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',}
+				req = session.get(url, headers=headers)
+				print(req)
+				print(req.text)
 			except:
 				del session
 				session = HTMLSession()
 				time.sleep(1)
 				pass
 		#parse result blocks
+		print("parsing results")
 		results = req.html.find(".srp-results .s-item__wrapper.clearfix")
+		print(results)
 		for result in results:
 			self.parseResult(result)
 		#update url
@@ -78,6 +87,7 @@ class search:
 				#print("====================fixed: "+data['url'])
 				notif.send(data['url'])
 	def parseResult(self,result):
+		print("parse result")
 		#get time remaining in seconds
 		#timing = self.calculateTime(result.find('.s-item__time-left')[0].text.split(" "))
 		#get listing url
