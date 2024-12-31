@@ -1,5 +1,6 @@
 from util.get_abs_path import get_abs_path
 from util.page_loader import parallel_page_loader
+from util.bin_listing import Bin_listing
 import time
 from bs4 import BeautifulSoup
 from db import db_functions as db_f
@@ -39,6 +40,40 @@ def check_listing_id(listing_url, newest_listing_id):
     listing_id = get_listing_id_from_url(listing_url)
     return listing_id == newest_listing_id
 
+#from listing entry from main search page, determines if a listing accepts best offer
+def listing_accepts_best_offer(listing_entry_code) -> bool:
+    accepts_best_offer = False
+    try:
+        accepts_best_offer = len(listing_entry_code.select(".s-item__formatBestOfferEnabled")) > 0
+    except:
+        pass
+    return accepts_best_offer
+
+#from listing entry from main search page, finds the total price (price + shipping)
+def get_listing_price(listing_entry_code) -> float:
+    base_price = 0
+    shipping_price = 0
+    try:
+        #base price
+        print(listing_entry_code.prettify())
+        base_price_str = (listing_entry_code.select(".s-item__price")[0].text).replace(",","")
+        base_price = float(base_price_str[1:])
+        
+        #shipping cost
+        shipping_price_str = (listing_entry_code.select(".s-item__shipping s-item__logisticsCost")[0].text).replace(",","")
+        #assume free shipping
+        shipping_price = 0
+        match = re.findall(r"\d+\.\d+", shipping_price_str)
+        if match:
+            shipping_price = float(match[0])
+            print(shipping_price)
+    except Exception as e:
+        print(f"issue capturing listing price {e}")
+        pass
+    print(base_price)
+    print(shipping_price)
+    return base_price + shipping_price
+
 def listing_poll_loop():
     while True:
         #get active searches from database
@@ -75,10 +110,13 @@ def listing_poll_loop():
                     continue
                 #parsing
                 soup = BeautifulSoup(search_page, 'html.parser')
+                listing_entries = soup.select(".srp-results")[0].select(".s-item")
                 links = soup.select(".srp-results")[0].select(".s-item__link")
-                for link in links:
-                    listing_url = link['href']
+                for listing_entry in listing_entries:
+                    listing_url = listing_entry.select(".s-item__link")[0]['href']
+
                     if check_listing_id(listing_url, newest_listing):
+                        #listing has already been crawled. terminate search
                         #break and continue
                         terminate = True
                         break
@@ -88,6 +126,10 @@ def listing_poll_loop():
                         if(search.get_search_type() == 'bin'):
                             #db_f.insert_bin_listing(search, listing_id)
                             print("insert listing")
+
+                            #def __init__(self, search_id: int, ebay_listing_id, url: str, accepts_best_offer: bool, price: float):
+                            listing_obj = Bin_listing(search_id=search.get_search_id(), ebay_listing_id=listing_id, url=listing_url, accepts_best_offer = listing_accepts_best_offer(listing_entry), price=get_listing_price(listing_entry))
+                            db_f.insert_bin_listing(listing_obj)
                         elif(search.get_search_type() == 'auction'):
                             print('insert auction listing into database')
                     listing_urls.append(listing_url)
