@@ -17,25 +17,31 @@ def get_active_searches():
     conn.close()
     return rows
 
-def get_newest_bin_listing(search_id):
+def get_newest_bin_listing_ebay_id(search_id):
     conn = sqlite3.connect(path+"db/app_data.db")
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
     cur.execute("SELECT * FROM bin_listings WHERE search_id = ? ORDER BY date_created DESC LIMIT 1", (search_id,))
-    rows = cur.fetchall()
+    row = cur.fetchone()
     conn.commit()
     conn.close()
-    return rows
+    if row is None:
+        return None
+    else:
+        return row['ebay_listing_id']
 
-def get_newest_auction_listing(search_id):
+def get_newest_auction_listing_ebay_id(search_id):
     conn = sqlite3.connect(path+"db/app_data.db")
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
     cur.execute("SELECT * FROM auction_listings WHERE search_id = ? ORDER BY date_created DESC LIMIT 1", (search_id,))
-    rows = cur.fetchall()
+    row = cur.fetchone()
     conn.commit()
     conn.close()
-    return rows
+    if row is None:
+        return None
+    else:
+        return row['ebay_listing_id']
 
 def insert_bin_listing(listing: Bin_listing):
     conn = sqlite3.connect(path+"db/app_data.db")
