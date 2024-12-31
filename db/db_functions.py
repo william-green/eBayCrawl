@@ -2,6 +2,7 @@
 import sqlite3
 from util.get_abs_path import get_abs_path
 from search.search import Search
+from util.bin_listing import Bin_listing
 
 path = get_abs_path()
 
@@ -36,15 +37,10 @@ def get_newest_auction_listing(search_id):
     conn.close()
     return rows
 
-def insert_bin_listing(search, listing_id, accepts_best_offer, price):
-    '''search_id = search.get_search_id()
-    ebay_listing_id = listing_id
-    accepts_best_offer = 
+def insert_bin_listing(listing: Bin_listing):
     conn = sqlite3.connect(path+"db/app_data.db")
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
-    cur.execute()
+    cur.execute("INSERT INTO bin_listings (search_id, ebay_listing_id, url, accepts_best_offer, price) VALUES (?, ?, ?, ?, ?)", (listing.get_search_id(), listing.get_ebay_listing_id(), listing.get_listing_url(), listing.get_accepts_best_offer(), listing.get_price(),))
     conn.commit()
-    conn.close()'''
-    print(listing_id)
-    print(type(listing_id))
+    conn.close()
