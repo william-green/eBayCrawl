@@ -55,7 +55,7 @@ def get_listing_price(listing_entry_code) -> float:
     shipping_price = 0
     try:
         #base price
-        print(listing_entry_code.prettify())
+        #print(listing_entry_code.prettify())
         base_price_str = (listing_entry_code.select(".s-item__price")[0].text).replace(",","")
         base_price = float(base_price_str[1:])
         
@@ -88,9 +88,9 @@ def listing_poll_loop():
             search_type = search.get_search_type()
             search_id = search.get_search_id()
             if search_type == 'bin':
-                newest_listing = db_f.get_newest_bin_listing(search_id)
+                newest_listing = db_f.get_newest_bin_listing_ebay_id(search_id)
             elif search_type == 'auction':
-                newest_listing = db_f.get_newest_auction_listing(search_id)
+                newest_listing = db_f.get_newest_auction_listing_ebay_id(search_id)
             else:
                 raise TypeError("Search type is other than bin or auction.")
             print(newest_listing)
@@ -111,13 +111,13 @@ def listing_poll_loop():
                 #parsing
                 soup = BeautifulSoup(search_page, 'html.parser')
                 listing_entries = soup.select(".srp-results")[0].select(".s-item")
-                links = soup.select(".srp-results")[0].select(".s-item__link")
                 for listing_entry in listing_entries:
                     listing_url = listing_entry.select(".s-item__link")[0]['href']
 
                     if check_listing_id(listing_url, newest_listing):
                         #listing has already been crawled. terminate search
                         #break and continue
+                        print("reached end. break")
                         terminate = True
                         break
                     else:
@@ -125,7 +125,7 @@ def listing_poll_loop():
                         listing_id = get_listing_id_from_url(listing_url)
                         if(search.get_search_type() == 'bin'):
                             #db_f.insert_bin_listing(search, listing_id)
-                            print("insert listing")
+                            #print("insert listing")
 
                             #def __init__(self, search_id: int, ebay_listing_id, url: str, accepts_best_offer: bool, price: float):
                             listing_obj = Bin_listing(search_id=search.get_search_id(), ebay_listing_id=listing_id, url=listing_url, accepts_best_offer = listing_accepts_best_offer(listing_entry), price=get_listing_price(listing_entry))
@@ -134,7 +134,7 @@ def listing_poll_loop():
                             print('insert auction listing into database')
                     listing_urls.append(listing_url)
                 if terminate:
-                    #search.set_complete()
+                    search.set_complete()
                     continue
             #for listing_url in listing_urls:
             #    print(listing_url)
