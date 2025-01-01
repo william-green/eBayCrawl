@@ -16,6 +16,9 @@ path = get_abs_path()
 #maximum number of pages of search results to iterate per search
 max_search_pages = 5
 
+#deep search enables analysis and logging of listing pages in addition to search results page
+deep_search = False
+
 def all_searches_complete(searches) -> bool:
     #no searches implies all complete
     if len(searches) == 0:
@@ -68,10 +71,10 @@ def get_listing_price(listing_entry_code) -> float:
             shipping_price = float(match[0])
             print(shipping_price)
     except Exception as e:
-        print(f"issue capturing listing price {e}")
+        #print(f"issue capturing listing price {e}")
         pass
-    print(base_price)
-    print(shipping_price)
+    #print(base_price)
+    #print(shipping_price)
     return base_price + shipping_price
 
 def listing_poll_loop():
@@ -116,10 +119,18 @@ def listing_poll_loop():
 
                     if check_listing_id(listing_url, newest_listing):
                         #listing has already been crawled. terminate search
-                        #break and continue
-                        print("reached end. break")
-                        terminate = True
-                        break
+
+                        #ignore promoted listings as break signal since promoted listings
+                        #occur many times in search results
+                        if(len(listing_entry.select(".s-wl38509_s-gk45084")) == 0):
+                            print("reached end. break")
+                            terminate = True
+                            #search.set_complete()
+                            break
+                        else:
+                            #skip the rest of the loop since it is already logged.
+                            #do not break the loop
+                            continue
                     else:
                         #insert listing into database
                         listing_id = get_listing_id_from_url(listing_url)
@@ -134,18 +145,22 @@ def listing_poll_loop():
                             print('insert auction listing into database')
                     listing_urls.append(listing_url)
                 if terminate:
+                    print("terminating")
                     search.set_complete()
                     continue
+
             #for listing_url in listing_urls:
             #    print(listing_url)
-            listing_pages = parallel_page_loader(listing_urls)
-            parse_listing_entry(listing_pages)
+            if deep_search:
+                listing_pages = parallel_page_loader(listing_urls)
+                parse_listing_entry(listing_pages)
             time.sleep(1)
         
         time.sleep(10)
 
 def main():
     #for testing purposes, create the searches
+    
     """
     conn = sqlite3.connect(path+"db/app_data.db")
     cur = conn.cursor()
@@ -156,16 +171,16 @@ def main():
             40.00,
             80.00,
             'bin',
-            'https://www.ebay.com/sch/i.html?_from=R40&_nkw=3ds+console&_sacat=0&LH_BIN=1&_sop=1',
+            'https://www.ebay.com/sch/i.html?_from=R40&_nkw=3ds+console&_sacat=0&LH_BIN=1&_sop=10',
             1
         )
         '''
     )
     conn.commit()
     conn.close()
-    """
+    
 
-    """
+    
     conn = sqlite3.connect(path+"db/app_data.db")
     cur = conn.cursor()
     cur.execute(
@@ -175,15 +190,15 @@ def main():
             20.00,
             80.00,
             'bin',
-            'https://www.ebay.com/sch/i.html?_from=R40&_trksid=p2334524.m570.l1313&_nkw=ipod+5th+generation&_sacat=0&_odkw=ipod&_osacat=0&LH_BIN=1&_sop=10',
+            'https://www.ebay.com/sch/i.html?_from=R40&_nkw=ipod+5th+generation&_sacat=0&LH_BIN=1&_sop=10',
             1
         )
         '''
-        #https://www.ebay.com/sch/i.html?_from=R40&_trksid=p2334524.m570.l1313&_nkw=ipod+5th+generation&_sacat=0&_odkw=ipod&_osacat=0&LH_BIN=1&_sop=10
     )
     conn.commit()
     conn.close()
     """
+    
 
     listing_poll_loop()
 
