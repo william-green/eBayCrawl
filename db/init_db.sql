@@ -26,7 +26,7 @@ END;
 CREATE TABLE IF NOT EXISTS bin_listings (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     search_id INTEGER NOT NULL,
-    ebay_listing_id INTEGER NOT NULL,
+    ebay_listing_id INTEGER NOT NULL UNIQUE,
     date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     url TEXT NOT NULL,
     accepts_best_offer INTEGER NOT NULL DEFAULT 0 CHECK (accepts_best_offer IN (0, 1)),
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS bin_listings (
 CREATE TABLE IF NOT EXISTS auction_listings (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     search_id INTEGER NOT NULL,
-    ebay_listing_id INTEGER NOT NULL,
+    ebay_listing_id INTEGER NOT NULL UNIQUE,
     date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     date_ending TIMESTAMP NOT NULL,
     url TEXT NOT NULL,
