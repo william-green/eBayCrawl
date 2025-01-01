@@ -1,4 +1,20 @@
+from find_listings import listing_poll_loop as find_listings
 import threading
+#from concurrent.futures import ThreadPoolExecutor
+
+def main():
+    #run the listing poll loop as a daemon so that the thread is terminated
+    #if main thread has an interrupt
+    find_listings_thread = threading.Thread(target=find_listings, daemon=True)
+    find_listings_thread.start()
+
+    #keep the main thread running for as long as child thread is
+    #except in the case of an interrupt
+    find_listings_thread.join()
+if __name__ == "__main__":
+    main()
+
+"""import threading
 import json
 import search.searchFixed as searchFixed
 import search.searchAuction as searchAuction
@@ -28,4 +44,4 @@ if __name__ == "__main__":
                 searchThread = threading.Thread(target=searchFixed.search,kwargs={'searchPrefs':searchItem})
                 searchThread.start()
         except:
-            pass
+            pass"""
