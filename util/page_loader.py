@@ -22,13 +22,17 @@ def fetch_url(url):
         return ""
     
     #spoofing timing signature
-    time.sleep(random.uniform(0, 3))
+    #time.sleep(random.uniform(0, 3))
 
     try:
         response = requests.get(url, timeout=10)
-        return response.text
+        if response.status_code == 200:
+            return response.text
+        else:
+            return ""
     except RequestException as e:
         print(f"Failed to retrieve the page: {e}")
+        return ""
 
 def parallel_page_loader(urls):
     with ThreadPoolExecutor(max_workers=12) as executor:
