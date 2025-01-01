@@ -43,10 +43,15 @@ def get_newest_auction_listing_ebay_id(search_id):
     else:
         return row['ebay_listing_id']
 
+#inserts the listing into database if it does not already exist (constrained by ebay_listing_id)
 def insert_bin_listing(listing: Bin_listing):
     conn = sqlite3.connect(path+"db/app_data.db")
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
-    cur.execute("INSERT INTO bin_listings (search_id, ebay_listing_id, url, accepts_best_offer, price) VALUES (?, ?, ?, ?, ?)", (listing.get_search_id(), listing.get_ebay_listing_id(), listing.get_listing_url(), listing.get_accepts_best_offer(), listing.get_price(),))
+    #check if listing is already entered
+    cur.execute("SELECT COUNT(ebay_listing_id) FROM bin_listings WHERE ebay_listing_id=?",(listing.get_ebay_listing_id(),))
+    existing_entry = cur.fetchone()[0] != 0
+    if not existing_entry:
+        cur.execute("INSERT INTO bin_listings (search_id, ebay_listing_id, url, accepts_best_offer, price) VALUES (?, ?, ?, ?, ?)", (listing.get_search_id(), listing.get_ebay_listing_id(), listing.get_listing_url(), listing.get_accepts_best_offer(), listing.get_price(),))
     conn.commit()
     conn.close()
