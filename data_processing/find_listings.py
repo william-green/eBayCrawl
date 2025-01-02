@@ -1,12 +1,11 @@
 from util.get_abs_path import get_abs_path
 from util.page_loader import parallel_page_loader
-from util.bin_listing import Bin_listing
+from structs.bin_listing import Bin_listing
 import time
 from bs4 import BeautifulSoup
 from db import db_functions as db_f
-from search.search import Search
+from structs.search import Search
 from util.get_abs_path import get_abs_path
-from util.listing_parser import parse_listing_entry
 import re
 
 path = get_abs_path()

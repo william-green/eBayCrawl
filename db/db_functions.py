@@ -1,7 +1,7 @@
 
 import sqlite3
 from util.get_abs_path import get_abs_path
-from util.bin_listing import Bin_listing
+from structs.bin_listing import Bin_listing
 
 path = get_abs_path()
 
