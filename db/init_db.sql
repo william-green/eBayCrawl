@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS bin_listings (
     url TEXT NOT NULL,
     accepts_best_offer INTEGER NOT NULL DEFAULT 0 CHECK (accepts_best_offer IN (0, 1)),
     price DECIMAL(10, 2) NOT NULL,
+    processed INTEGER NOT NULL DEFAULT 0 CHECK (processed IN (0, 1)),
     FOREIGN KEY (search_id) REFERENCES Searches (id) ON DELETE RESTRICT
 );
 
@@ -43,6 +44,14 @@ CREATE TABLE IF NOT EXISTS auction_listings (
     url TEXT NOT NULL,
     accepts_best_offer INTEGER NOT NULL DEFAULT 0 CHECK (accepts_best_offer IN (0, 1)),
     price DECIMAL(10, 2) NOT NULL,
+    processed INTEGER NOT NULL DEFAULT 0 CHECK (processed IN (0, 1)),
     FOREIGN KEY (search_id) REFERENCES Searches (id) ON DELETE RESTRICT,
     CHECK (date_ending > date_created)
+);
+
+CREATE TABLE IF NOT EXISTS bin_notifications (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    bin_listing_id INTEGER NOT NULL UNIQUE,
+    notified INTEGER NOT NULL DEFAULT 0 CHECK (notified IN (0, 1)),
+    FOREIGN KEY (bin_listing_id) REFERENCES bin_listings (id) ON DELETE CASCADE
 );
