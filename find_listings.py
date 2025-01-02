@@ -90,18 +90,6 @@ def listing_poll_loop(db_lock):
             #create new search objects for each db search item
             searches.append(Search(search, max_pages=max_search_pages))
 
-        #iterate through all searches and get the newest recorded listing for each
-        for search in searches:
-            search_type = search.get_search_type()
-            search_id = search.get_search_id()
-            if search_type == 'bin':
-                newest_listing = db_f.get_newest_bin_listing_ebay_id(search_id)
-            elif search_type == 'auction':
-                newest_listing = db_f.get_newest_auction_listing_ebay_id(search_id)
-            else:
-                raise TypeError("Search type is other than bin or auction.")
-            print(newest_listing)
-
         #fetch next set of results
 
         new_listings_inserted = False
@@ -118,7 +106,6 @@ def listing_poll_loop(db_lock):
                 has_lock = False
                 db_lock.release()
 
-            print(urls)
             search_pages = parallel_page_loader(urls)
 
             if not has_lock:
@@ -132,6 +119,17 @@ def listing_poll_loop(db_lock):
             #terminate state to break from nested loop
             terminate = False
             for search, search_page in zip(searches, search_pages):
+                #iterate through all searches and get the newest recorded listing for each
+                search_type = search.get_search_type()
+                search_id = search.get_search_id()
+                if search_type == 'bin':
+                    newest_listing = db_f.get_newest_bin_listing_ebay_id(search_id)
+                elif search_type == 'auction':
+                    newest_listing = db_f.get_newest_auction_listing_ebay_id(search_id)
+                else:
+                    raise TypeError("Search type is other than bin or auction.")
+                print(newest_listing)
+
                 #check if page is blank
                 if search_page == '':
                     continue
