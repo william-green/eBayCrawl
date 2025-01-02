@@ -1,7 +1,6 @@
 
 import sqlite3
 from util.get_abs_path import get_abs_path
-from search.search import Search
 from util.bin_listing import Bin_listing
 
 path = get_abs_path()
@@ -98,5 +97,13 @@ def create_bin_notification(bin_listing_id):
     conn.close()    
 
 
-def get_bin_notifications():
-    print("get notifications")
+def refresh_bin_notifications():
+    conn = sqlite3.connect(path+"db/app_data.db")
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+    cur.execute("SELECT bin_listings.url FROM bin_listings INNER JOIN bin_notifications ON bin_listings.id=bin_notifications.bin_listing_id WHERE bin_notifications.notified=0")
+    db_new_notifications = cur.fetchall()
+    cur.execute("UPDATE bin_notifications SET notified=1")
+    conn.commit()
+    conn.close()
+    return db_new_notifications

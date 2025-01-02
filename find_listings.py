@@ -5,10 +5,7 @@ import time
 from bs4 import BeautifulSoup
 from db import db_functions as db_f
 from search.search import Search
-import sqlite3
 from util.get_abs_path import get_abs_path
-#from util.shared import OwnedEvent
-#from multiprocessing import Manager
 from util.listing_parser import parse_listing_entry
 import re
 
@@ -191,14 +188,7 @@ def main():
     cur = conn.cursor()
     cur.execute(
         '''
-        INSERT INTO Searches (name, min_price, max_price, type, url, is_active) VALUES (
-            '3ds consoles',
-            40.00,
-            80.00,
-            'bin',
-            'https://www.ebay.com/sch/i.html?_from=R40&_nkw=3ds+console&_sacat=0&LH_BIN=1&_sop=10',
-            1
-        )
+        INSERT INTO Searches (name, min_price, max_price, type, url, is_active) VALUES ('3ds consoles',40.00,80.00,'bin','https://www.ebay.com/sch/i.html?_from=R40&_nkw=3ds+console&_sacat=0&LH_BIN=1&_sop=10',1)
         '''
     )
     conn.commit()
@@ -210,14 +200,7 @@ def main():
     cur = conn.cursor()
     cur.execute(
         '''
-        INSERT INTO Searches (name, min_price, max_price, type, url, is_active) VALUES (
-            'iPod 5th Gen',
-            20.00,
-            80.00,
-            'bin',
-            'https://www.ebay.com/sch/i.html?_from=R40&_nkw=ipod+5th+generation&_sacat=0&LH_BIN=1&_sop=10',
-            1
-        )
+        INSERT INTO Searches (name, min_price, max_price, type, url, is_active) VALUES ('iPod 5th Gen',20.00,80.00,'bin','https://www.ebay.com/sch/i.html?_from=R40&_nkw=ipod+5th+generation&_sacat=0&LH_BIN=1&_sop=10',1)
         '''
     )
     conn.commit()
