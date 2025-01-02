@@ -5,10 +5,7 @@ import time
 from bs4 import BeautifulSoup
 from db import db_functions as db_f
 from search.search import Search
-import sqlite3
 from util.get_abs_path import get_abs_path
-#from util.shared import OwnedEvent
-#from multiprocessing import Manager
 from util.listing_parser import parse_listing_entry
 import re
 
