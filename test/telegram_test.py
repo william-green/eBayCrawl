@@ -1,8 +1,9 @@
 from telegram import Bot
 from telegram.ext import Application, CommandHandler
+from util.get_abs_path import get_abs_path
 
 #root directory of project
-path = "/Users/williamgreen/Documents/GitHub/eBayCrawl/"
+path = get_abs_path()
 
 telegram_key = ""
 
