@@ -191,14 +191,7 @@ def main():
     cur = conn.cursor()
     cur.execute(
         '''
-        INSERT INTO Searches (name, min_price, max_price, type, url, is_active) VALUES (
-            '3ds consoles',
-            40.00,
-            80.00,
-            'bin',
-            'https://www.ebay.com/sch/i.html?_from=R40&_nkw=3ds+console&_sacat=0&LH_BIN=1&_sop=10',
-            1
-        )
+        INSERT INTO Searches (name, min_price, max_price, type, url, is_active) VALUES ('3ds consoles',40.00,80.00,'bin','https://www.ebay.com/sch/i.html?_from=R40&_nkw=3ds+console&_sacat=0&LH_BIN=1&_sop=10',1)
         '''
     )
     conn.commit()
@@ -210,14 +203,7 @@ def main():
     cur = conn.cursor()
     cur.execute(
         '''
-        INSERT INTO Searches (name, min_price, max_price, type, url, is_active) VALUES (
-            'iPod 5th Gen',
-            20.00,
-            80.00,
-            'bin',
-            'https://www.ebay.com/sch/i.html?_from=R40&_nkw=ipod+5th+generation&_sacat=0&LH_BIN=1&_sop=10',
-            1
-        )
+        INSERT INTO Searches (name, min_price, max_price, type, url, is_active) VALUES ('iPod 5th Gen',20.00,80.00,'bin','https://www.ebay.com/sch/i.html?_from=R40&_nkw=ipod+5th+generation&_sacat=0&LH_BIN=1&_sop=10',1)
         '''
     )
     conn.commit()
