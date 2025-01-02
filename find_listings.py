@@ -7,6 +7,8 @@ from db import db_functions as db_f
 from search.search import Search
 import sqlite3
 from util.get_abs_path import get_abs_path
+#from util.shared import OwnedEvent
+#from multiprocessing import Manager
 from util.listing_parser import parse_listing_entry
 import re
 
@@ -77,7 +79,9 @@ def get_listing_price(listing_entry_code) -> float:
     #print(shipping_price)
     return base_price + shipping_price
 
-def listing_poll_loop():
+def listing_poll_loop(db_lock):
+    db_lock.acquire()
+    has_lock = True
     while True:
         #get active searches from database
         db_searches = db_f.get_active_searches()
@@ -99,9 +103,29 @@ def listing_poll_loop():
             print(newest_listing)
 
         #fetch next set of results
+
+        new_listings_inserted = False
+
         while not all_searches_complete(searches):
             urls = [search.get_next_page_url() for search in searches]
+
+            #set data was inserted into db on last cycle
+            #set the flag for the other thread to process the data
+            #wait for the flag to be cleared
+            if new_listings_inserted:
+                #release lock
+                #print("releasing lock")
+                has_lock = False
+                db_lock.release()
+
+            print(urls)
             search_pages = parallel_page_loader(urls)
+
+            if not has_lock:
+                #acquire lock
+                #print("waiting for lock")
+                db_lock.acquire()
+                has_lock = True
 
             #grabbing links from search page
             listing_urls = []
@@ -125,11 +149,12 @@ def listing_poll_loop():
                         if(len(listing_entry.select(".s-wl38509_s-gk45084")) == 0):
                             print("reached end. break")
                             terminate = True
-                            #search.set_complete()
+                            search.set_complete()
                             break
                         else:
                             #skip the rest of the loop since it is already logged.
                             #do not break the loop
+                            print("promoted listing")
                             continue
                     else:
                         #insert listing into database
@@ -141,8 +166,10 @@ def listing_poll_loop():
                             #def __init__(self, search_id: int, ebay_listing_id, url: str, accepts_best_offer: bool, price: float):
                             listing_obj = Bin_listing(search_id=search.get_search_id(), ebay_listing_id=listing_id, url=listing_url, accepts_best_offer = listing_accepts_best_offer(listing_entry), price=get_listing_price(listing_entry))
                             db_f.insert_bin_listing(listing_obj)
+                            new_listings_inserted = True
                         elif(search.get_search_type() == 'auction'):
                             print('insert auction listing into database')
+                            new_listings_inserted = True
                     listing_urls.append(listing_url)
                 if terminate:
                     print("terminating")
