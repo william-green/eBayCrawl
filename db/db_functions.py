@@ -88,3 +88,15 @@ def get_unprocessed_bin_listings():
     conn.commit()
     conn.close()
     return payload
+
+def create_bin_notification(bin_listing_id):
+    conn = sqlite3.connect(path+"db/app_data.db")
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+    cur.execute("INSERT INTO bin_notifications (bin_listing_id) VALUES (?)", (bin_listing_id,))
+    conn.commit()
+    conn.close()    
+
+
+def get_bin_notifications():
+    print("get notifications")
