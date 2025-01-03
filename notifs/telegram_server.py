@@ -15,7 +15,7 @@ above_root_dir = Path(__file__).resolve().parent.parent.parent
 
 
 telegram_key_path = above_root_dir / 'eBay_Crawl_keys' / 'telegram_key.txt'
-telegram_channel_key_path = above_root_dir / 'eBay_Crawl_keys' / 'telegram_key.txt'
+telegram_channel_key_path = above_root_dir / 'eBay_Crawl_keys' / 'telegram_channel_id.txt'
 
 telegram_key = ""
 channel_id = ""
