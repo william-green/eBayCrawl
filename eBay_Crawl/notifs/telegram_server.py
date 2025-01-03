@@ -1,9 +1,7 @@
 import asyncio
 from telegram import Bot
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
-#from util.get_abs_path import get_abs_path
 from pathlib import Path
-from db import db_functions as db_f
+from ..db import db_functions as db_f
 from telegram import Bot
 import time
 import threading

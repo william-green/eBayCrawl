@@ -1,14 +1,11 @@
-from util.get_abs_path import get_abs_path
-from util.page_loader import parallel_page_loader
-from structs.bin_listing import Bin_listing
+from ..util.page_loader import parallel_page_loader
+from ..structs.bin_listing import Bin_listing
 import time
 from bs4 import BeautifulSoup
-from db import db_functions as db_f
-from structs.search import Search
-#from util.get_abs_path import get_abs_path
+from ..db import db_functions as db_f
+from ..structs.search import Search
 import re
 
-#path = get_abs_path()
 
 
 #maximum number of pages of search results to iterate per search

@@ -1,15 +1,12 @@
 
 import sqlite3
-#from util.get_abs_path import get_abs_path
 from pathlib import Path
-from structs.bin_listing import Bin_listing
+from ..structs.bin_listing import Bin_listing
 
 script_dir = Path(__file__).resolve().parent
 path = script_dir / "app_data.db"
 
 print(path)
-
-#path = get_abs_path()
 
 
 def get_active_searches():

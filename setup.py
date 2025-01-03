@@ -1,4 +1,25 @@
 from setuptools import setup, find_packages
+import os
+import subprocess
+from setuptools import setup, find_packages
+from setuptools.command.install import install
+import sys
+
+class PostInstallCommand(install):
+    """Custom post-installation tasks."""
+    def run(self):
+        # Run the standard install process
+        install.run(self)
+
+        # Locate the SQL file and execute the script
+        db_script = os.path.join(os.path.dirname(__file__), 'eBay_Crawl', 'db', 'db_init.py')
+        
+        #print("resolving python executable to run setup scripts.")
+        #python_executable = 'python3' if sys.version_info[0] == 3 else 'python'
+        
+        print(f"Running post-install script: {db_script}")
+        #subprocess.call([python_executable, db_script])
+        subprocess.call([sys.executable, db_script])
 
 
 setup(
@@ -72,5 +93,13 @@ setup(
         'Programming Language :: Python :: 3',
         'License :: OSI Approved :: MIT License',
     ],
-    python_requires='>=3.13.1'
+    python_requires='>=3.13.1',
+    entry_points={
+        'console_scripts': [
+            'post_install=eBay_Crawl.db.db_init:setup_db',
+        ],
+    },
+    cmdclass={
+        'install': PostInstallCommand,
+    },
 )

@@ -1,5 +1,5 @@
 import time
-from db import db_functions as db_f
+from ..db import db_functions as db_f
 
 
 def process_new_bins(db_response_data):

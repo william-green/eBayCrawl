@@ -1,0 +1,4 @@
+include db/init_db.sql
+include README.md
+recursive-include eBay_Crawl *
+recursive-exclude eBay_Crawl *.db

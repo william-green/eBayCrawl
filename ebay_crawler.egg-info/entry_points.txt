@@ -1,0 +1,2 @@
+[console_scripts]
+post_install = eBay_Crawl.db.db_init:setup_db
