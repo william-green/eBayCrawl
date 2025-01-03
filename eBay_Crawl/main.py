@@ -1,6 +1,6 @@
-from find_listings import listing_poll_loop as find_listings
-from data_processing.post_process import post_process_data
-from notifs.telegram_server import init_telegram_bot
+from .data_processing.find_listings import listing_poll_loop as find_listings
+from .data_processing.post_process import post_process_data
+from .notifs.telegram_server import init_telegram_bot
 import threading
 #from multiprocessing import Manager
 import time

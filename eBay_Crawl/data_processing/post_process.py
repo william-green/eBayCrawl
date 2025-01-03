@@ -1,7 +1,5 @@
-import queue
-import threading
 import time
-from db import db_functions as db_f
+from ..db import db_functions as db_f
 
 
 def process_new_bins(db_response_data):
@@ -37,8 +35,3 @@ def post_process_data(db_lock):
         db_lock.release()
 
         process_new_bins(db_response_data)
-
-
-if __name__ == "__main__":
-    print("main")
-    #process_new_bins()

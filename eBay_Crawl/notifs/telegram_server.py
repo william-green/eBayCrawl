@@ -1,33 +1,39 @@
 import asyncio
 from telegram import Bot
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
-from util.get_abs_path import get_abs_path
-from db import db_functions as db_f
+from pathlib import Path
+from ..db import db_functions as db_f
 from telegram import Bot
 import time
 import threading
+import os
 
 #root directory of project
-path = get_abs_path()
+#path = get_abs_path()
+
+'''
+above_root_dir = Path(__file__).resolve().parent.parent.parent
+
+
+telegram_key_path = above_root_dir / 'eBay_Crawl_keys' / 'telegram_key.txt'
+telegram_channel_key_path = above_root_dir / 'eBay_Crawl_keys' / 'telegram_channel_id.txt'
 
 telegram_key = ""
 channel_id = ""
+'''
 
 def get_telegram_key() -> str:
-    try:
-        with open(path+"../eBay_Crawl_keys/telegram_key.txt", "r") as telegram_key_file:
-            return telegram_key_file.read()
-    except FileNotFoundError:
-        print("telegram api key file not found")
-    return ""
+    api_key = os.environ.get("Telegram_API_KEY")
+    if not api_key:
+        raise ValueError("Telegram API key has not been set.")
+    else:
+        return api_key
 
 def get_telegram_channel_id() -> str:
-    try:
-        with open(path+"../eBay_Crawl_keys/telegram_channel_id.txt", "r") as telegram_channel_id_file:
-            return telegram_channel_id_file.read()
-    except FileNotFoundError:
-        print("telegram channel id file not found")
-    return ""
+    channel_id = os.environ.get("Telegram_Channel_id")
+    if not channel_id:
+        raise ValueError("Telegram channel ID has not been set.")
+    else:
+        return channel_id
 
 
 async def producer_bin_notif(queue: asyncio.PriorityQueue, start_time):
