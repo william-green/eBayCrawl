@@ -1,13 +1,19 @@
 
 import sqlite3
-from util.get_abs_path import get_abs_path
+#from util.get_abs_path import get_abs_path
+from pathlib import Path
 from structs.bin_listing import Bin_listing
 
-path = get_abs_path()
+script_dir = Path(__file__).resolve().parent
+path = script_dir / "app_data.db"
+
+print(path)
+
+#path = get_abs_path()
 
 
 def get_active_searches():
-    conn = sqlite3.connect(path+"db/app_data.db")
+    conn = sqlite3.connect(path)
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
     cur.execute("SELECT * FROM Searches WHERE is_active=1")
@@ -17,7 +23,7 @@ def get_active_searches():
     return rows
 
 def get_newest_bin_listing_ebay_id(search_id):
-    conn = sqlite3.connect(path+"db/app_data.db")
+    conn = sqlite3.connect(path)
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
     cur.execute("SELECT * FROM bin_listings WHERE search_id = ? ORDER BY date_created DESC LIMIT 1", (search_id,))
@@ -30,7 +36,7 @@ def get_newest_bin_listing_ebay_id(search_id):
         return row['ebay_listing_id']
 
 def get_newest_auction_listing_ebay_id(search_id):
-    conn = sqlite3.connect(path+"db/app_data.db")
+    conn = sqlite3.connect(path)
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
     cur.execute("SELECT * FROM auction_listings WHERE search_id = ? ORDER BY date_created DESC LIMIT 1", (search_id,))
@@ -44,7 +50,7 @@ def get_newest_auction_listing_ebay_id(search_id):
 
 #inserts the listing into database if it does not already exist (constrained by ebay_listing_id)
 def insert_bin_listing(listing: Bin_listing):
-    conn = sqlite3.connect(path+"db/app_data.db")
+    conn = sqlite3.connect(path)
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
     #check if listing is already entered
@@ -56,7 +62,7 @@ def insert_bin_listing(listing: Bin_listing):
     conn.close()
 
 def get_unprocessed_bin_listings():
-    conn = sqlite3.connect(path+"db/app_data.db")
+    conn = sqlite3.connect(path)
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
     #fetch all listings from bin_listings that do not exist in bin_notifications
@@ -89,7 +95,7 @@ def get_unprocessed_bin_listings():
     return payload
 
 def create_bin_notification(bin_listing_id):
-    conn = sqlite3.connect(path+"db/app_data.db")
+    conn = sqlite3.connect(path)
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
     cur.execute("INSERT INTO bin_notifications (bin_listing_id) VALUES (?)", (bin_listing_id,))
@@ -98,7 +104,7 @@ def create_bin_notification(bin_listing_id):
 
 
 def refresh_bin_notifications():
-    conn = sqlite3.connect(path+"db/app_data.db")
+    conn = sqlite3.connect(path)
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
     cur.execute("SELECT bin_listings.url FROM bin_listings INNER JOIN bin_notifications ON bin_listings.id=bin_notifications.bin_listing_id WHERE bin_notifications.notified=0")
