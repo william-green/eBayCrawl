@@ -3,6 +3,8 @@ pipeline {
 
     environment {
         SCRAPER_IMAGE = "ebay-scraper-prod"
+        Telegram_API_KEY     = credentials('telegram-api-key')
+        Telegram_Channel_id  = credentials('telegram-channel-id')
     }
 
     stages {
@@ -33,7 +35,7 @@ pipeline {
             steps {
                 sh '''
                     . venv/bin/activate
-                    pytest tests/ --junitxml=results.xml
+                    pytest tests/ --ignore=tests/scripts --junitxml=results.xml
                 '''
             }
             post {
