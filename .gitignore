@@ -1,4 +1,26 @@
 
-app_data.db
-*.pyc
+# macOS
 .DS_Store
+
+# Python cache/build artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+*.egg-info/
+
+# Local virtual environments (never commit site-packages)
+venv/
+.venv/
+
+# Local runtime data
+app_data.db
+src/eBay_Crawl/db/app_data.db
+flake8-warnings.txt
+results.xml

@@ -1,6 +1,13 @@
-from .data_processing.find_listings import listing_poll_loop as find_listings
-from .data_processing.post_process import post_process_data
-from .notifs.telegram_server import init_telegram_bot
+import sys
+from pathlib import Path
+
+# Allow `python .../src/eBay_Crawl/main.py` (IDE / direct path). Package runs need `src` on path.
+if __name__ == "__main__" and not __package__:
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from eBay_Crawl.data_processing.find_listings import listing_poll_loop as find_listings
+from eBay_Crawl.data_processing.post_process import post_process_data
+from eBay_Crawl.notifs.telegram_server import init_telegram_bot
 import threading
 #from multiprocessing import Manager
 import time

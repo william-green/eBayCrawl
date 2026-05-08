@@ -1,9 +1,9 @@
-from setuptools import setup, find_packages
 import os
 import subprocess
+import sys
+
 from setuptools import setup, find_packages
 from setuptools.command.install import install
-import sys
 
 class PostInstallCommand(install):
     """Custom post-installation tasks."""
@@ -12,7 +12,9 @@ class PostInstallCommand(install):
         install.run(self)
 
         # Locate the SQL file and execute the script
-        db_script = os.path.join(os.path.dirname(__file__), 'eBay_Crawl', 'db', 'db_init.py')
+        db_script = os.path.join(
+            os.path.dirname(__file__), 'src', 'eBay_Crawl', 'db', 'db_init.py'
+        )
         
         #print("resolving python executable to run setup scripts.")
         #python_executable = 'python3' if sys.version_info[0] == 3 else 'python'
@@ -25,7 +27,8 @@ class PostInstallCommand(install):
 setup(
     name='ebay_crawler',  # Name of your package
     version='0.1.0',  # Version of your package
-    packages=find_packages(),  # Automatically find packages in the directory
+    packages=find_packages(where='src'),
+    package_dir={'': 'src'},
     install_requires=[  # Any dependencies your package needs
         'anyio==4.7.0',
         'appdirs==1.4.4',

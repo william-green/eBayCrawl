@@ -1,34 +1,63 @@
 # eBayCrawl
 
-To setup:
+Python service that discovers eBay listings, stores them in SQLite, post-processes matches, and sends Telegram notifications.
 
-- Download the source code
-- Set environment variables for Telegram bot API key and channel ID. Use persistent variables.
+## Project Structure
 
-e.g. in ~/.zshrc, create export var="value"
-The application expects the variables to be "Telegram_API_KEY" and "Telegram_Channel_id"
+- `src/eBay_Crawl/` - core application package (installable module)
+- `tests/` - tests and local experimentation scripts
+- `Jenkinsfile` - root Jenkins pipeline definition
+- `Dockerfile` - container build definition for CI/CD
+- `requirements.txt` - pinned dependencies used by Jenkins
+- `setup.py` - package metadata and install entry points
 
-- Restart terminal for new environment variable to take effect.
-- Generate the build files
+## Local Setup
 
-python3 setup.py sdist bdist_wheel
+1. Create and activate a virtual environment **outside** the repository (or use `.venv/` at the repo root — it is gitignored):
 
-- Create a virtual environment to hold the project
-- Run the build script
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
 
-pip install dist/<wheel file>
+2. Install dependencies and this project (editable install recommended for development):
 
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+pip install -e .
+```
 
-- Run the post-install script
+Alternatively, without installing the package:
 
-post_install
+```bash
+export PYTHONPATH="${PYTHONPATH}:$(pwd)/src"
+python -m eBay_Crawl.main
+```
 
-- Run the project
+3. Set required environment variables:
 
-Create a script at the root level of the virtual environment.
+- `Telegram_API_KEY`
+- `Telegram_Channel_id`
 
-import eBay_Crawl
+4. Run the app:
 
-eBay_Crawl.main()
+```bash
+python -m eBay_Crawl.main
+```
 
-Run your python script.
+## Jenkins Pipeline
+
+The root `Jenkinsfile` runs:
+- dependency setup,
+- `flake8` lint checks,
+- `pytest` test execution,
+- Docker image build.
+
+## Note On CAPTCHA / Anti-Bot Challenges
+
+If eBay presents anti-bot checks, avoid bypass tooling. Prefer compliant options:
+- reduce request rate and add jitter/backoff,
+- cache pages and avoid repeated fetches,
+- use official APIs or approved data providers where possible,
+- add manual review/fallback flows when automated access is blocked.
