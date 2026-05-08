@@ -47,7 +47,19 @@ pipeline {
 
         stage('Build Scraper Image') {
             steps {
-                sh "docker build -t ${SCRAPER_IMAGE}:${env.BUILD_ID} ."
+                script {
+                    def dockerReady = sh(
+                        returnStatus: true,
+                        script: 'docker info > /dev/null 2>&1'
+                    ) == 0
+
+                    if (!dockerReady) {
+                        echo 'Skipping Docker build: Docker daemon/socket is not accessible to Jenkins.'
+                        return
+                    }
+
+                    sh "docker build -t ${SCRAPER_IMAGE}:${env.BUILD_ID} ."
+                }
             }
         }
     }
