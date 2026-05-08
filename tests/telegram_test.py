@@ -1,19 +1,24 @@
-from telegram import Bot
 from telegram.ext import Application, CommandHandler
-from util.get_abs_path import get_abs_path
+from pathlib import Path
+import os
 
-#root directory of project
-path = get_abs_path()
+# Root directory of the repo (tests/ -> repo root)
+REPO_ROOT = Path(__file__).resolve().parents[1]
+TELEGRAM_KEY_PATH = REPO_ROOT / "eBay_Crawl_keys" / "telegram_key.txt"
 
 telegram_key = ""
 
 def get_telegram_key() -> str:
+    # Prefer env var in CI/local automation; fall back to a local file if present.
+    api_key = os.environ.get("Telegram_API_KEY")
+    if api_key:
+        return api_key
+
     try:
-        with open(path+"../eBay_Crawl_keys/telegram_key.txt", "r") as telegram_key_file:
-            return telegram_key_file.read()
+        return TELEGRAM_KEY_PATH.read_text(encoding="utf-8")
     except FileNotFoundError:
-        print("telegram api key not found")
-    return ""
+        # Avoid failing test collection when keys are not present in CI.
+        return ""
 
 async def start(update, context):
     await update.message.reply_text("test bot")
