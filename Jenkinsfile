@@ -1,18 +1,22 @@
 pipeline {
     agent any
 
+    options {
+        // This ensures a fresh workspace BEFORE the checkout happens
+        skipDefaultCheckout(false)
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        // Clean the workspace before the build starts
+        checkoutToSubdirectory('')
+    }
+
     environment {
         SCRAPER_IMAGE = "ebay-scraper-prod"
         Telegram_API_KEY     = credentials('telegram-api-key')
         Telegram_Channel_id  = credentials('telegram-channel-id')
     }
 
-        stages {
-            stage('Clean Workspace') {
-                steps {
-                    cleanWs()
-                }
-            }
+    stages {
+        // Stage 'Clean Workspace' removed: logic moved to options or handled by SCM settings
 
         stage('Setup Environment') {
             steps {
@@ -54,6 +58,7 @@ pipeline {
         stage('Build Scraper Image') {
             steps {
                 script {
+                    // This will now work because of your root/socket setup!
                     def dockerReady = sh(
                         returnStatus: true,
                         script: 'docker info > /dev/null 2>&1'
@@ -76,6 +81,10 @@ pipeline {
         }
         failure {
             echo 'Pipeline failed: review linting or test results.'
+        }
+        cleanup {
+            // Optional: Clean up after the build is finished to save disk space
+            cleanWs()
         }
     }
 }
