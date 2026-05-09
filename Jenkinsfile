@@ -7,7 +7,13 @@ pipeline {
         Telegram_Channel_id  = credentials('telegram-channel-id')
     }
 
-    stages {
+        stages {
+            stage('Clean Workspace') {
+                steps {
+                    cleanWs()
+                }
+            }
+
         stage('Setup Environment') {
             steps {
                 sh '''
