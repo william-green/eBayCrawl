@@ -1,4 +1,4 @@
-"""Select fetch backend via EBAY_FETCH_BACKEND (requests | selenium)."""
+"""Select fetch backend via EBAY_FETCH_BACKEND (requests | selenium | ebay_api)."""
 
 from __future__ import annotations
 
@@ -14,4 +14,8 @@ def get_page_fetcher() -> PageFetcher:
         from .selenium_fetcher import SeleniumPageFetcher
 
         return SeleniumPageFetcher()
+    if mode == "ebay_api":
+        from .ebay_api_fetcher import EbayBrowseApiFetcher
+
+        return EbayBrowseApiFetcher()
     return RequestsPageFetcher()
