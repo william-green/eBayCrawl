@@ -1,35 +1,35 @@
-"""Fetch search result HTML using Selenium (browser) instead of raw HTTP."""
+"""Fetch search result HTML via undetected_chromedriver (Chrome)."""
 
 from __future__ import annotations
 
 import os
 import time
+from typing import Any
 
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options as ChromeOptions
+import undetected_chromedriver as uc
 
 from .models import SearchPagePayload
 
 
 class SeleniumPageFetcher:
     """
-    Loads each URL in order with a single WebDriver (stable for automation).
+    Loads each URL in order with a single Chrome session.
 
-    Requires Chrome/Chromium and a matching ChromeDriver on PATH or Selenium Manager.
+    Uses ``undetected_chromedriver`` so the browser matches a normal Chrome fingerprint
+    more closely than raw Selenium. Requires a Chrome/Chromium install compatible with
+    the bundled ChromeDriver resolution logic.
     """
 
     def __init__(self, page_load_wait_s: float | None = None) -> None:
-        self._driver: webdriver.Chrome | None = None
+        self._driver: Any | None = None
         raw = page_load_wait_s
         if raw is None:
             raw = float(os.environ.get("EBAY_SELENIUM_WAIT_S", "2.0"))
         self._wait_s = raw
 
-    def _ensure_driver(self) -> webdriver.Chrome:
+    def _ensure_driver(self) -> Any:
         if self._driver is None:
-            opts = ChromeOptions()
-            if os.environ.get("EBAY_SELENIUM_HEADLESS", "1").strip() not in ("0", "false", "False"):
-                opts.add_argument("--headless=new")
+            opts = uc.ChromeOptions()
             opts.add_argument("--no-sandbox")
             opts.add_argument("--disable-dev-shm-usage")
             opts.add_argument("--disable-gpu")
@@ -37,7 +37,24 @@ class SeleniumPageFetcher:
             ua = os.environ.get("EBAY_SELENIUM_USER_AGENT")
             if ua:
                 opts.add_argument(f"--user-agent={ua}")
-            self._driver = webdriver.Chrome(options=opts)
+
+            headless = os.environ.get("EBAY_SELENIUM_HEADLESS", "1").strip() not in (
+                "0",
+                "false",
+                "False",
+            )
+
+            chrome_kw: dict[str, Any] = {"options": opts, "headless": headless}
+
+            browser_bin = os.environ.get("EBAY_CHROME_BINARY")
+            if browser_bin:
+                chrome_kw["browser_executable_path"] = browser_bin
+
+            vm = os.environ.get("EBAY_CHROME_VERSION_MAIN")
+            if vm and vm.isdigit():
+                chrome_kw["version_main"] = int(vm)
+
+            self._driver = uc.Chrome(**chrome_kw)
         return self._driver
 
     def fetch_pages(self, urls: list[str]) -> list[SearchPagePayload]:
